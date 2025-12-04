@@ -60,7 +60,6 @@ class APIService {
                 throw APIError.invalidResponse
             }
             
-            // Se o status code não for 2xx, tenta decodificar erro
             guard (200...299).contains(httpResponse.statusCode) else {
                 if let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
                     throw APIError.serverError(errorResponse.message)

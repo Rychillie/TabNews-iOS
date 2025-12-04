@@ -28,7 +28,6 @@ class AuthViewModel: ObservableObject {
     }
     
     func login() async {
-        // Validações básicas
         guard !email.isEmpty, !password.isEmpty else {
             errorMessage = "Por favor, preencha todos os campos"
             return
@@ -45,7 +44,6 @@ class AuthViewModel: ObservableObject {
         do {
             _ = try await authService.login(email: email, password: password)
             isAuthenticated = true
-            // Limpa os campos após login bem-sucedido
             email = ""
             password = ""
         } catch {

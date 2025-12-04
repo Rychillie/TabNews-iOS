@@ -28,7 +28,6 @@ class AuthService {
             body: jsonData
         )
         
-        // Salva o token no UserDefaults
         saveSession(response)
         
         return response
@@ -46,7 +45,6 @@ class AuthService {
             return false
         }
         
-        // Verifica se o token ainda é válido
         let dateFormatter = ISO8601DateFormatter()
         if let expiresAt = dateFormatter.date(from: expiresAtString) {
             return Date() < expiresAt

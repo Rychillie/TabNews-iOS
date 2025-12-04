@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct LoginView: View {
-    @ObservedObject var viewModel: AuthViewModel
+    @ObservedObject var authViewModel: AuthViewModel
+    @Binding var isPresented: Bool
     @FocusState private var focusedField: Field?
     
     enum Field {
@@ -18,13 +19,11 @@ struct LoginView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                // Background
                 Color(.systemGroupedBackground)
                     .ignoresSafeArea()
                 
                 ScrollView {
                     VStack(spacing: 24) {
-                        // Logo e título
                         VStack(spacing: 12) {
                             Image(systemName: "newspaper.fill")
                                 .font(.system(size: 60))
@@ -41,16 +40,14 @@ struct LoginView: View {
                         .padding(.top, 40)
                         .padding(.bottom, 20)
                         
-                        // Formulário
                         VStack(spacing: 16) {
-                            // Campo de Email
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Email")
                                     .font(.subheadline)
                                     .fontWeight(.medium)
                                     .foregroundColor(.secondary)
                                 
-                                TextField("seu@email.com", text: $viewModel.email)
+                                TextField("tim@apple.com", text: $authViewModel.email)
                                     .textFieldStyle(.plain)
                                     .padding()
                                     .background(Color(.systemBackground))
@@ -65,14 +62,13 @@ struct LoginView: View {
                                     }
                             }
                             
-                            // Campo de Senha
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Senha")
                                     .font(.subheadline)
                                     .fontWeight(.medium)
                                     .foregroundColor(.secondary)
                                 
-                                SecureField("Digite sua senha", text: $viewModel.password)
+                                SecureField("Digite sua senha", text: $authViewModel.password)
                                     .textFieldStyle(.plain)
                                     .padding()
                                     .background(Color(.systemBackground))
@@ -82,13 +78,12 @@ struct LoginView: View {
                                     .submitLabel(.go)
                                     .onSubmit {
                                         Task {
-                                            await viewModel.login()
+                                            await performLogin()
                                         }
                                     }
                             }
                             
-                            // Mensagem de erro
-                            if let errorMessage = viewModel.errorMessage {
+                            if let errorMessage = authViewModel.errorMessage {
                                 HStack {
                                     Image(systemName: "exclamationmark.triangle.fill")
                                     Text(errorMessage)
@@ -101,15 +96,14 @@ struct LoginView: View {
                                 .cornerRadius(10)
                             }
                             
-                            // Botão de Login
                             Button(action: {
                                 focusedField = nil
                                 Task {
-                                    await viewModel.login()
+                                    await performLogin()
                                 }
                             }) {
                                 HStack {
-                                    if viewModel.isLoading {
+                                    if authViewModel.isLoading {
                                         ProgressView()
                                             .progressViewStyle(CircularProgressViewStyle(tint: .white))
                                     } else {
@@ -119,11 +113,11 @@ struct LoginView: View {
                                 }
                                 .frame(maxWidth: .infinity)
                                 .padding()
-                                .background(viewModel.isLoading ? Color.blue.opacity(0.6) : Color.blue)
+                                .background(authViewModel.isLoading ? Color.blue.opacity(0.6) : Color.blue)
                                 .foregroundColor(.white)
                                 .cornerRadius(10)
                             }
-                            .disabled(viewModel.isLoading)
+                            .disabled(authViewModel.isLoading)
                         }
                         .padding(.horizontal, 24)
                         
@@ -131,11 +125,30 @@ struct LoginView: View {
                     }
                 }
             }
-            .navigationBarHidden(true)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        isPresented = false
+                    } label: {
+                        Image(systemName: "xmark")
+                            .foregroundColor(.secondary)
+                            .font(.headline.bold())
+                    }
+                }
+            }
+        }
+    }
+    
+    private func performLogin() async {
+        await authViewModel.login()
+        //
+        if authViewModel.isAuthenticated {
+            isPresented = false
         }
     }
 }
 
 #Preview {
-    LoginView(viewModel: AuthViewModel())
+    LoginView(authViewModel: AuthViewModel(), isPresented: .constant(true))
 }

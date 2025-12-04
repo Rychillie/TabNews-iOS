@@ -70,7 +70,7 @@ TabNews/
 
 ## 📡 API
 
-O projeto utiliza a API pública do TabNews. A documentação completa da API pode ser encontrada na [documentação da comunidade](https://www.tabnews.com.br/gabrielsozinho/documentacao-da-api-do-tabnews-com-um-exemplo-de-implementacao-em-delphi).
+O projeto utiliza a API pública do TabNews. A documentação completa da API pode ser encontrada na [documentação da comunidade](https://www.tabnews.com.br/GabrielSozinho/documentacao-da-api-do-tabnews).
 
 **Base URL:** `https://www.tabnews.com.br/api/v1`
 

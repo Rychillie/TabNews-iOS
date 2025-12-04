@@ -8,9 +8,10 @@
 import SwiftUI
 
 struct HomeView: View {
-    @ObservedObject var viewModel: AuthViewModel
+    @ObservedObject var authViewModel: AuthViewModel
     @StateObject private var homeViewModel = HomeViewModel()
     @State private var showingLogoutAlert = false
+    @State private var showingLoginSheet = false
     
     var body: some View {
         NavigationView {
@@ -28,7 +29,7 @@ struct HomeView: View {
                                     Task { await homeViewModel.loadNextPageIfNeeded(currentItem: content) }
                                 }
                         }
-
+                        
                         if homeViewModel.isLoadingNextPage {
                             loadingNextPageView()
                         }
@@ -42,20 +43,34 @@ struct HomeView: View {
             .navigationTitle("TabNews")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(role: .destructive) {
-                        showingLogoutAlert = true
-                    } label: {
-                        Image(systemName: "arrow.right.square")
+                    if authViewModel.isAuthenticated {
+                        Button(role: .destructive) {
+                            showingLogoutAlert = true
+                        } label: {
+                            Image(systemName: "arrow.right.square")
+                        }
+                    } else {
+                        Button {
+                            showingLoginSheet = true
+                        } label: {
+                            HStack(spacing: 4) {
+                                Image(systemName: "person.circle")
+                                Text("Entrar")
+                            }
+                        }
                     }
                 }
             }
             .alert("Sair da conta", isPresented: $showingLogoutAlert) {
                 Button("Cancelar", role: .cancel) { }
                 Button("Sair", role: .destructive) {
-                    viewModel.logout()
+                    authViewModel.logout()
                 }
             } message: {
                 Text("Deseja realmente sair da sua conta?")
+            }
+            .sheet(isPresented: $showingLoginSheet) {
+                LoginView(authViewModel: authViewModel, isPresented: $showingLoginSheet)
             }
             .task {
                 await homeViewModel.loadContents(reset: true)
@@ -63,9 +78,8 @@ struct HomeView: View {
         }
     }
 }
- 
+
 private extension HomeView {
-        
     func loadingNextPageView() -> some View {
         HStack {
             Spacer()
@@ -74,7 +88,7 @@ private extension HomeView {
         }
         .listRowSeparator(.hidden)
     }
-
+    
     func loadingView() -> some View {
         VStack(spacing: 12) {
             ProgressView()
@@ -120,7 +134,7 @@ private extension HomeView {
         }
         .padding(.vertical, 8)
     }
-
+    
     func rowSubtitle(for content: ContentResponse) -> String {
         let tabcoinsText = "\(content.tabcoins) tabcoin" + (content.tabcoins == 1 ? "" : "s")
         let commentsText = "\(content.childrenDeepCount) comentário" + (content.childrenDeepCount == 1 ? "" : "s")
@@ -135,5 +149,5 @@ private extension HomeView {
 }
 
 #Preview {
-    HomeView(viewModel: AuthViewModel())
+    HomeView(authViewModel: AuthViewModel())
 }

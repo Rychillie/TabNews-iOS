@@ -13,7 +13,12 @@ final class ContentService {
     
     private init() {}
     
-    func fetchContents() async throws -> [ContentResponse] {
-        try await apiService.request(endpoint: "/contents")
+    func fetchContents(
+        page: Int,
+        perPage: Int,
+        strategy: String
+    ) async throws -> [ContentResponse] {
+        let endpoint = "/contents?page=\(page)&per_page=\(perPage)&strategy=\(strategy)"
+        return try await apiService.request(endpoint: endpoint)
     }
 }

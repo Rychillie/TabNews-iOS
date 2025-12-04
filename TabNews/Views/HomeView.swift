@@ -15,7 +15,7 @@ struct HomeView: View {
     var body: some View {
         NavigationView {
             Group {
-                if homeViewModel.isLoading && homeViewModel.contents.isEmpty {
+                if homeViewModel.isLoading && homeViewModel.contents.isEmpty && !homeViewModel.isRefreshing {
                     loadingView()
                 } else if let error = homeViewModel.errorMessage {
                     errorView(with: error)
@@ -24,11 +24,18 @@ struct HomeView: View {
                         ForEach(Array(homeViewModel.contents.enumerated()), id: \.element.id) { index, content in
                             contentRow(index: index + 1, content: content)
                                 .listRowSeparator(.hidden)
+                                .onAppear {
+                                    Task { await homeViewModel.loadNextPageIfNeeded(currentItem: content) }
+                                }
+                        }
+
+                        if homeViewModel.isLoadingNextPage {
+                            loadingNextPageView()
                         }
                     }
                     .listStyle(.plain)
                     .refreshable {
-                        await homeViewModel.loadContents()
+                        await homeViewModel.loadContents(reset: true)
                     }
                 }
             }
@@ -51,14 +58,23 @@ struct HomeView: View {
                 Text("Deseja realmente sair da sua conta?")
             }
             .task {
-                await homeViewModel.loadContents()
+                await homeViewModel.loadContents(reset: true)
             }
         }
     }
 }
  
 private extension HomeView {
-    
+        
+    func loadingNextPageView() -> some View {
+        HStack {
+            Spacer()
+            ProgressView()
+            Spacer()
+        }
+        .listRowSeparator(.hidden)
+    }
+
     func loadingView() -> some View {
         VStack(spacing: 12) {
             ProgressView()

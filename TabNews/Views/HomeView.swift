@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import DesignSystem
 
 struct HomeView: View {
     @ObservedObject var authViewModel: AuthViewModel
@@ -53,7 +54,7 @@ struct HomeView: View {
                         Button {
                             showingLoginSheet = true
                         } label: {
-                            HStack(spacing: 4) {
+                            HStack(spacing: .space.x2) {
                                 Image(systemName: "person.circle")
                                 Text("Entrar")
                             }
@@ -90,7 +91,7 @@ private extension HomeView {
     }
     
     func loadingView() -> some View {
-        VStack(spacing: 12) {
+        VStack(spacing: .space.x6) {
             ProgressView()
             Text("Carregando conteúdos...")
                 .font(.subheadline)
@@ -99,14 +100,14 @@ private extension HomeView {
     }
     
     func errorView(with errorMessage: String) -> some View {
-        VStack(spacing: 16) {
+        VStack(spacing: .space.x8) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .foregroundColor(.orange)
                 .font(.largeTitle)
             Text(errorMessage)
                 .multilineTextAlignment(.center)
                 .foregroundColor(.primary)
-            
+
             Button("Tentar novamente") {
                 Task { await homeViewModel.loadContents() }
             }
@@ -117,22 +118,22 @@ private extension HomeView {
     }
     
     func contentRow(index: Int, content: ContentResponse) -> some View {
-        HStack(alignment: .top, spacing: 12) {
+        HStack(alignment: .top, spacing: .space.x6) {
             Text("\(index).")
                 .font(.headline)
                 .foregroundColor(.secondary)
-            
-            VStack(alignment: .leading, spacing: 6) {
+
+            VStack(alignment: .leading, spacing: .space.x3) {
                 Text(content.title)
                     .font(.headline)
                     .foregroundColor(.primary)
-                
+
                 Text(rowSubtitle(for: content))
                     .font(.footnote)
                     .foregroundColor(.secondary)
             }
         }
-        .padding(.vertical, 8)
+        .padding(.vertical, .space.x4)
     }
     
     func rowSubtitle(for content: ContentResponse) -> String {

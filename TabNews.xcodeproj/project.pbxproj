@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		4A0C9F4B2EE7A14100A85E22 /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = 4A0C9F4A2EE7A14100A85E22 /* DesignSystem */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		896D06FA2EDFD3DB0019833A /* TabNews.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TabNews.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4A0C9F4B2EE7A14100A85E22 /* DesignSystem in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +70,7 @@
 			);
 			name = TabNews;
 			packageProductDependencies = (
+				4A0C9F4A2EE7A14100A85E22 /* DesignSystem */,
 			);
 			productName = TabNews;
 			productReference = 896D06FA2EDFD3DB0019833A /* TabNews.app */;
@@ -94,6 +100,9 @@
 			);
 			mainGroup = 896D06F12EDFD3DB0019833A;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				4A0C9F492EE7A14100A85E22 /* XCLocalSwiftPackageReference "../../XCodeProjects/DesignSystem" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 896D06FB2EDFD3DB0019833A /* Products */;
 			projectDirPath = "";
@@ -332,6 +341,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		4A0C9F492EE7A14100A85E22 /* XCLocalSwiftPackageReference "../../XCodeProjects/DesignSystem" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../XCodeProjects/DesignSystem;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		4A0C9F4A2EE7A14100A85E22 /* DesignSystem */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = DesignSystem;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 896D06F22EDFD3DB0019833A /* Project object */;
 }

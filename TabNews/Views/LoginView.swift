@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import DesignSystem
 
 struct LoginView: View {
     @ObservedObject var authViewModel: AuthViewModel
@@ -23,10 +24,10 @@ struct LoginView: View {
                     .ignoresSafeArea()
                 
                 ScrollView {
-                    VStack(spacing: 24) {
-                        VStack(spacing: 12) {
+                    VStack(spacing: .space.x12) {
+                        VStack(spacing: .space.x6) {
                             Image(systemName: "newspaper.fill")
-                                .font(.system(size: 60))
+                                .font(.system(size: .fontSize.xl9))
                                 .foregroundColor(.blue)
                             
                             Text("TabNews")
@@ -37,11 +38,11 @@ struct LoginView: View {
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
                         }
-                        .padding(.top, 40)
-                        .padding(.bottom, 20)
-                        
-                        VStack(spacing: 16) {
-                            VStack(alignment: .leading, spacing: 8) {
+                        .padding(.top, .space.x20)
+                        .padding(.bottom, .space.x10)
+
+                        VStack(spacing: .space.x8) {
+                            VStack(alignment: .leading, spacing: .space.x4) {
                                 Text("Email")
                                     .font(.subheadline)
                                     .fontWeight(.medium)
@@ -51,7 +52,7 @@ struct LoginView: View {
                                     .textFieldStyle(.plain)
                                     .padding()
                                     .background(Color(.systemBackground))
-                                    .cornerRadius(10)
+                                    .cornerRadius(.radius.x5)
                                     .textContentType(.emailAddress)
                                     .keyboardType(.emailAddress)
                                     .autocapitalization(.none)
@@ -61,8 +62,8 @@ struct LoginView: View {
                                         focusedField = .password
                                     }
                             }
-                            
-                            VStack(alignment: .leading, spacing: 8) {
+
+                            VStack(alignment: .leading, spacing: .space.x4) {
                                 Text("Senha")
                                     .font(.subheadline)
                                     .fontWeight(.medium)
@@ -72,7 +73,7 @@ struct LoginView: View {
                                     .textFieldStyle(.plain)
                                     .padding()
                                     .background(Color(.systemBackground))
-                                    .cornerRadius(10)
+                                    .cornerRadius(.radius.x5)
                                     .textContentType(.password)
                                     .focused($focusedField, equals: .password)
                                     .submitLabel(.go)
@@ -92,8 +93,8 @@ struct LoginView: View {
                                 .foregroundColor(.red)
                                 .padding()
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(Color.red.opacity(0.1))
-                                .cornerRadius(10)
+                                .background(Color.red.opacity(.opacity.level1))
+                                .cornerRadius(.radius.x5)
                             }
                             
                             Button(action: {
@@ -113,13 +114,13 @@ struct LoginView: View {
                                 }
                                 .frame(maxWidth: .infinity)
                                 .padding()
-                                .background(authViewModel.isLoading ? Color.blue.opacity(0.6) : Color.blue)
+                                .background(authViewModel.isLoading ? Color.blue.opacity(.opacity.level6) : Color.blue)
                                 .foregroundColor(.white)
-                                .cornerRadius(10)
+                                .cornerRadius(.radius.x5)
                             }
                             .disabled(authViewModel.isLoading)
                         }
-                        .padding(.horizontal, 24)
+                        .padding(.horizontal, .space.x12)
                         
                         Spacer()
                     }

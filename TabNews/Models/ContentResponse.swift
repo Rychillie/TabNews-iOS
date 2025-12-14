@@ -13,6 +13,7 @@ struct ContentResponse: Codable, Identifiable {
     let parentId: String?
     let slug: String
     let title: String
+    let body: String?
     let status: String
     let sourceURL: String?
     let createdAt: String
@@ -32,6 +33,7 @@ struct ContentResponse: Codable, Identifiable {
         case parentId = "parent_id"
         case slug
         case title
+        case body
         case status
         case sourceURL = "source_url"
         case createdAt = "created_at"

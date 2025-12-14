@@ -21,4 +21,9 @@ final class ContentService {
         let endpoint = "/contents?page=\(page)&per_page=\(perPage)&strategy=\(strategy)"
         return try await apiService.request(endpoint: endpoint)
     }
+    
+    func fetchContent(username: String, slug: String) async throws -> ContentResponse {
+        let endpoint = "/contents/\(username)/\(slug)"
+        return try await apiService.request(endpoint: endpoint)
+    }
 }

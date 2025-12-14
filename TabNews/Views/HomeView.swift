@@ -23,11 +23,13 @@ struct HomeView: View {
                 } else {
                     List {
                         ForEach(Array(homeViewModel.contents.enumerated()), id: \.element.id) { index, content in
-                            contentRow(index: index + 1, content: content)
-                                .listRowSeparator(.hidden)
-                                .onAppear {
-                                    Task { await homeViewModel.loadNextPageIfNeeded(currentItem: content) }
-                                }
+                            NavigationLink(destination: PostDetailView(username: content.ownerUsername, slug: content.slug)) {
+                                contentRow(index: index + 1, content: content)
+                            }
+                            .listRowSeparator(.hidden)
+                            .onAppear {
+                                Task { await homeViewModel.loadNextPageIfNeeded(currentItem: content) }
+                            }
                         }
                         
                         if homeViewModel.isLoadingNextPage {

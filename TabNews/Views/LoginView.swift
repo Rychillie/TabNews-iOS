@@ -47,7 +47,7 @@ struct LoginView: View {
                                     .fontWeight(.medium)
                                     .foregroundColor(.secondary)
                                 
-                                TextField("tim@apple.com", text: $authViewModel.email)
+                                TextField("\("tim@apple.com")", text: $authViewModel.email)
                                     .textFieldStyle(.plain)
                                     .padding()
                                     .background(Color(.systemBackground))

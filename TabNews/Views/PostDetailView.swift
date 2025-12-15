@@ -90,16 +90,6 @@ private extension PostDetailView {
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                     }
-                    
-                    HStack(spacing: 16) {
-                        Label("\(content.tabcoins)", systemImage: "star.fill")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                        
-                        Label("\(content.childrenDeepCount)", systemImage: "bubble.left.fill")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
                 }
                 .padding(.horizontal)
                 .padding(.top)

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import MarkdownUI
 
 struct PostDetailView: View {
     let username: String
@@ -108,7 +109,9 @@ private extension PostDetailView {
                 
                 // Content Body
                 if let body = content.body, !body.isEmpty {
-                    MarkdownTextView(markdown: body)
+                    Markdown(body)
+                        .markdownTheme(.basic)
+                        .textSelection(.enabled)
                         .padding(.horizontal)
                 } else {
                     Text("Sem conteúdo disponível")
@@ -141,27 +144,6 @@ private extension PostDetailView {
                 }
             }
             .padding(.bottom, 24)
-        }
-    }
-}
-
-// MARK: - Markdown Text View
-struct MarkdownTextView: View {
-    let markdown: String
-    
-    var body: some View {
-        // Use full Markdown parsing with all features
-        if let attributedString = try? AttributedString(markdown: markdown) {
-            Text(attributedString)
-                .font(.body)
-                .lineSpacing(4)
-                .textSelection(.enabled)
-        } else {
-            // Fallback to plain text if Markdown parsing fails
-            Text(markdown)
-                .font(.body)
-                .lineSpacing(4)
-                .textSelection(.enabled)
         }
     }
 }

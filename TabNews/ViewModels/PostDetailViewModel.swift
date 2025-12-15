@@ -15,7 +15,11 @@ final class PostDetailViewModel: ObservableObject {
     @Published var errorMessage: String?
     
     private let contentService = ContentService.shared
-    private let isoFormatter = ISO8601DateFormatter()
+    private let isoFormatter: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter
+    }()
     private let relativeFormatter: RelativeDateTimeFormatter = {
         let formatter = RelativeDateTimeFormatter()
         formatter.locale = Locale(identifier: "pt_BR")

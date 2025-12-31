@@ -12,6 +12,7 @@ struct HomeView: View {
     @StateObject private var homeViewModel = HomeViewModel()
     @State private var showingLogoutAlert = false
     @State private var showingLoginSheet = false
+    @State private var showingFoundationModelsInfo = false
     
     var body: some View {
         NavigationView {
@@ -22,9 +23,50 @@ struct HomeView: View {
                     errorView(with: error)
                 } else {
                     List {
+                        // Show FoundationModels availability banner if not available
+                        if !homeViewModel.isFoundationModelsAvailable && !homeViewModel.contents.isEmpty {
+                            foundationModelsBanner()
+                        }
+                        
                         ForEach(Array(homeViewModel.contents.enumerated()), id: \.element.id) { index, content in
-                            NavigationLink(destination: PostDetailView(username: content.ownerUsername, slug: content.slug)) {
-                                contentRow(index: index + 1, content: content)
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack(alignment: .top, spacing: 8) {
+                                    // Vertical stack for number and icon button
+                                    VStack(alignment: .center, spacing: 4) {
+                                        Text("\(index + 1).")
+                                            .font(.headline)
+                                            .foregroundColor(.secondary)
+                                            .frame(width: 25, alignment: .trailing)
+                                        
+                                        // Summary icon button (only if FoundationModels is available)
+                                        if homeViewModel.isFoundationModelsAvailable {
+                                            summaryIconButton(for: content)
+                                        }
+                                    }
+                                    
+                                    // Main content area
+                                    VStack(alignment: .leading, spacing: 6) {
+                                        // Title and subtitle (clickable for navigation)
+                                        NavigationLink(destination: PostDetailView(username: content.ownerUsername, slug: content.slug)) {
+                                            VStack(alignment: .leading, spacing: 6) {
+                                                Text(content.title)
+                                                    .font(.headline)
+                                                    .foregroundColor(.primary)
+                                                
+                                                Text(rowSubtitle(for: content))
+                                                    .font(.footnote)
+                                                    .foregroundColor(.secondary)
+                                            }
+                                        }
+                                        .buttonStyle(.plain)
+                                        
+                                        // Summary display area (loading, summary, or error)
+                                        if homeViewModel.isFoundationModelsAvailable {
+                                            summaryDisplay(for: content)
+                                        }
+                                    }
+                                }
+                                .padding(.vertical, 8)
                             }
                             .listRowSeparator(.hidden)
                             .onAppear {
@@ -62,6 +104,18 @@ struct HomeView: View {
                         }
                     }
                 }
+                
+                // Info button for FoundationModels status
+                if !homeViewModel.contents.isEmpty {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button {
+                            showingFoundationModelsInfo = true
+                        } label: {
+                            Image(systemName: homeViewModel.isFoundationModelsAvailable ? "brain.head.fill" : "brain.head")
+                                .foregroundColor(homeViewModel.isFoundationModelsAvailable ? .green : .orange)
+                        }
+                    }
+                }
             }
             .alert("Sair da conta", isPresented: $showingLogoutAlert) {
                 Button("Cancelar", role: .cancel) { }
@@ -73,6 +127,9 @@ struct HomeView: View {
             }
             .sheet(isPresented: $showingLoginSheet) {
                 LoginView(authViewModel: authViewModel, isPresented: $showingLoginSheet)
+            }
+            .sheet(isPresented: $showingFoundationModelsInfo) {
+                foundationModelsInfoSheet()
             }
             .task {
                 await homeViewModel.loadContents(reset: true)
@@ -118,23 +175,263 @@ private extension HomeView {
         .frame(maxWidth: .infinity)
     }
     
-    func contentRow(index: Int, content: ContentResponse) -> some View {
-        HStack(alignment: .top, spacing: 12) {
-            Text("\(index).")
-                .font(.headline)
-                .foregroundColor(.secondary)
+    func foundationModelsBanner() -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "brain.head")
+                .foregroundColor(.orange)
+                .font(.title3)
             
-            VStack(alignment: .leading, spacing: 6) {
-                Text(content.title)
-                    .font(.headline)
-                    .foregroundColor(.primary)
-                
-                Text(rowSubtitle(for: content))
-                    .font(.footnote)
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Resumo inteligente indisponível")
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                Text("Seu dispositivo não suporta Apple Intelligence. Os botões de resumo foram removidos.")
+                    .font(.caption2)
                     .foregroundColor(.secondary)
             }
+            
+            Spacer()
         }
-        .padding(.vertical, 8)
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Color.orange.opacity(0.1))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.orange.opacity(0.3), lineWidth: 1)
+                )
+        )
+        .padding(.horizontal)
+        .padding(.vertical, 4)
+        .listRowSeparator(.hidden)
+        .listRowBackground(Color.clear)
+    }
+    
+    func foundationModelsInfoSheet() -> some View {
+        NavigationView {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    // Header
+                    HStack(spacing: 12) {
+                        Image(systemName: homeViewModel.isFoundationModelsAvailable ? "brain.head.fill" : "brain.head")
+                            .font(.largeTitle)
+                            .foregroundColor(homeViewModel.isFoundationModelsAvailable ? .green : .orange)
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Resumo Inteligente")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                            
+                            Text(homeViewModel.isFoundationModelsAvailable ? "Disponível" : "Indisponível")
+                                .font(.headline)
+                                .foregroundColor(homeViewModel.isFoundationModelsAvailable ? .green : .orange)
+                        }
+                    }
+                    .padding(.bottom, 8)
+                    
+                    Divider()
+                    
+                    // Status Details
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Status do dispositivo:")
+                            .font(.headline)
+                        
+                        HStack {
+                            Text("• iOS 26.0 ou superior:")
+                                .foregroundColor(.secondary)
+                            Spacer()
+                            Text("✓")
+                                .foregroundColor(.green)
+                                .fontWeight(.bold)
+                        }
+                        
+                        HStack {
+                            Text("• Apple Intelligence:")
+                                .foregroundColor(.secondary)
+                            Spacer()
+                            Text(homeViewModel.isFoundationModelsAvailable ? "✓ Ativado" : "✗ Desativado")
+                                .foregroundColor(homeViewModel.isFoundationModelsAvailable ? .green : .orange)
+                                .fontWeight(.bold)
+                        }
+                    }
+                    .padding(12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.gray.opacity(0.1))
+                    )
+                    
+                    // Instructions
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Como usar:")
+                            .font(.headline)
+                        
+                        if homeViewModel.isFoundationModelsAvailable {
+                            Text("1. Toque no ícone de documento (📄) ao lado de cada notícia")
+                            Text("2. Aguarde o resumo ser gerado")
+                            Text("3. O resumo aparecerá abaixo do título")
+                            Text("4. Toque novamente para ocultar o resumo")
+                        } else {
+                            Text("Para habilitar os resumos inteligentes:")
+                            Text("1. Atualize para um dispositivo compatível (iPhone com Apple Intelligence)")
+                            Text("2. Ative o Apple Intelligence nas Configurações")
+                            Text("3. Atualize o app para iOS 26.0 ou superior")
+                        }
+                    }
+                    .padding(12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.blue.opacity(0.1))
+                    )
+                    
+                    // Technical Info
+                    Text("Informações técnicas:")
+                        .font(.headline)
+                        .padding(.top, 8)
+                    
+                    Text("O resumo utiliza o FoundationModels framework da Apple, que processa o conteúdo localmente no dispositivo usando o modelo de linguagem do sistema (SystemLanguageModel).")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .padding()
+            }
+            .navigationTitle("Informações")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Fechar") {
+                        showingFoundationModelsInfo = false
+                    }
+                }
+            }
+        }
+    }
+    
+
+    
+    @ViewBuilder
+    func summaryIconButton(for content: ContentResponse) -> some View {
+        let isSummarizing = homeViewModel.isSummarizing(content.id)
+        let hasSummary = homeViewModel.getSummary(for: content.id) != nil
+        let hasError = homeViewModel.getSummaryError(for: content.id) != nil
+        
+        // Only show button if not summarizing, no summary, and no error
+        if !isSummarizing && !hasSummary && !hasError {
+            Button {
+                Task {
+                    await homeViewModel.summarizeContent(content)
+                }
+            } label: {
+                Image(systemName: "sparkles")
+                    .font(.caption2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .frame(width: 18, height: 18)
+                    .background(
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [Color.pink, Color.purple],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                    )
+            }
+            .buttonStyle(.plain)
+        }
+    }
+    
+    @ViewBuilder
+    func summaryDisplay(for content: ContentResponse) -> some View {
+        let summary = homeViewModel.getSummary(for: content.id)
+        let isSummarizing = homeViewModel.isSummarizing(content.id)
+        let error = homeViewModel.getSummaryError(for: content.id)
+        
+        // Show this section if any of these conditions are true
+        if isSummarizing || summary != nil || error != nil {
+            if isSummarizing {
+                // Activity indicator while generating
+                HStack(spacing: 8) {
+                    ProgressView()
+                        .scaleEffect(0.8)
+                        .tint(.purple)
+                    Text("Gerando resumo...")
+                        .font(.caption)
+                        .foregroundColor(.purple)
+                    Spacer()
+                }
+                .padding(10)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.purple.opacity(0.08))
+                )
+                .padding(.top, 4)
+            } else if let summary = summary {
+                // Show the summary content (clickable to remove)
+                Button {
+                    // Remove the summary
+                    homeViewModel.clearSummary(for: content.id)
+                } label: {
+                    Text(summary.summary)
+                        .font(.caption)
+                        .foregroundColor(.primary)
+                        .lineLimit(nil)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .buttonStyle(.plain)
+                .padding(10)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(
+                            LinearGradient(
+                                colors: [Color.pink.opacity(0.12), Color.purple.opacity(0.12)],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                )
+                .overlay(
+                    HStack {
+                        Spacer()
+                        Image(systemName: "xmark")
+                            .font(.caption2)
+                            .foregroundColor(.purple)
+                            .padding(4)
+                    }
+                    .padding(4)
+                )
+                .padding(.top, 4)
+            } else if let error = error {
+                // Show error (clickable to retry)
+                Button {
+                    // Retry summarization
+                    Task {
+                        homeViewModel.clearSummary(for: content.id)
+                        await homeViewModel.summarizeContent(content)
+                    }
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(.purple)
+                            .font(.caption)
+                        Text(error)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        Image(systemName: "arrow.counterclockwise")
+                            .font(.caption2)
+                            .foregroundColor(.purple)
+                    }
+                }
+                .buttonStyle(.plain)
+                .padding(10)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.purple.opacity(0.08))
+                )
+                .padding(.top, 4)
+            }
+        }
     }
     
     func rowSubtitle(for content: ContentResponse) -> String {

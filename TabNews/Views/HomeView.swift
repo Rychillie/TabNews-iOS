@@ -12,7 +12,6 @@ struct HomeView: View {
     @StateObject private var homeViewModel = HomeViewModel()
     @State private var showingLogoutAlert = false
     @State private var showingLoginSheet = false
-    @State private var showingFoundationModelsInfo = false
     
     var body: some View {
         NavigationView {
@@ -104,18 +103,6 @@ struct HomeView: View {
                         }
                     }
                 }
-                
-                // Info button for FoundationModels status
-                if !homeViewModel.contents.isEmpty {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        Button {
-                            showingFoundationModelsInfo = true
-                        } label: {
-                            Image(systemName: homeViewModel.isFoundationModelsAvailable ? "brain.head.fill" : "brain.head")
-                                .foregroundColor(homeViewModel.isFoundationModelsAvailable ? .green : .orange)
-                        }
-                    }
-                }
             }
             .alert("Sair da conta", isPresented: $showingLogoutAlert) {
                 Button("Cancelar", role: .cancel) { }
@@ -127,9 +114,6 @@ struct HomeView: View {
             }
             .sheet(isPresented: $showingLoginSheet) {
                 LoginView(authViewModel: authViewModel, isPresented: $showingLoginSheet)
-            }
-            .sheet(isPresented: $showingFoundationModelsInfo) {
-                foundationModelsInfoSheet()
             }
             .task {
                 await homeViewModel.loadContents(reset: true)
@@ -206,107 +190,6 @@ private extension HomeView {
         .listRowSeparator(.hidden)
         .listRowBackground(Color.clear)
     }
-    
-    func foundationModelsInfoSheet() -> some View {
-        NavigationView {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    // Header
-                    HStack(spacing: 12) {
-                        Image(systemName: homeViewModel.isFoundationModelsAvailable ? "brain.head.fill" : "brain.head")
-                            .font(.largeTitle)
-                            .foregroundColor(homeViewModel.isFoundationModelsAvailable ? .green : .orange)
-                        
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Resumo Inteligente")
-                                .font(.title2)
-                                .fontWeight(.bold)
-                            
-                            Text(homeViewModel.isFoundationModelsAvailable ? "Disponível" : "Indisponível")
-                                .font(.headline)
-                                .foregroundColor(homeViewModel.isFoundationModelsAvailable ? .green : .orange)
-                        }
-                    }
-                    .padding(.bottom, 8)
-                    
-                    Divider()
-                    
-                    // Status Details
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Status do dispositivo:")
-                            .font(.headline)
-                        
-                        HStack {
-                            Text("• iOS 26.0 ou superior:")
-                                .foregroundColor(.secondary)
-                            Spacer()
-                            Text("✓")
-                                .foregroundColor(.green)
-                                .fontWeight(.bold)
-                        }
-                        
-                        HStack {
-                            Text("• Apple Intelligence:")
-                                .foregroundColor(.secondary)
-                            Spacer()
-                            Text(homeViewModel.isFoundationModelsAvailable ? "✓ Ativado" : "✗ Desativado")
-                                .foregroundColor(homeViewModel.isFoundationModelsAvailable ? .green : .orange)
-                                .fontWeight(.bold)
-                        }
-                    }
-                    .padding(12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.gray.opacity(0.1))
-                    )
-                    
-                    // Instructions
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Como usar:")
-                            .font(.headline)
-                        
-                        if homeViewModel.isFoundationModelsAvailable {
-                            Text("1. Toque no ícone de documento (📄) ao lado de cada notícia")
-                            Text("2. Aguarde o resumo ser gerado")
-                            Text("3. O resumo aparecerá abaixo do título")
-                            Text("4. Toque novamente para ocultar o resumo")
-                        } else {
-                            Text("Para habilitar os resumos inteligentes:")
-                            Text("1. Atualize para um dispositivo compatível (iPhone com Apple Intelligence)")
-                            Text("2. Ative o Apple Intelligence nas Configurações")
-                            Text("3. Atualize o app para iOS 26.0 ou superior")
-                        }
-                    }
-                    .padding(12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.blue.opacity(0.1))
-                    )
-                    
-                    // Technical Info
-                    Text("Informações técnicas:")
-                        .font(.headline)
-                        .padding(.top, 8)
-                    
-                    Text("O resumo utiliza o FoundationModels framework da Apple, que processa o conteúdo localmente no dispositivo usando o modelo de linguagem do sistema (SystemLanguageModel).")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                .padding()
-            }
-            .navigationTitle("Informações")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Fechar") {
-                        showingFoundationModelsInfo = false
-                    }
-                }
-            }
-        }
-    }
-    
-
     
     @ViewBuilder
     func summaryIconButton(for content: ContentResponse) -> some View {

@@ -17,7 +17,14 @@ final class HomeViewModel: ObservableObject {
     @Published private(set) var isLoadingNextPage = false
     @Published private(set) var isRefreshing = false
     
+    // Summary-related state
+    @Published var summaries: [String: ContentSummary] = [:]
+    @Published var summarizingIds: Set<String> = []
+    @Published var summaryErrors: [String: String] = [:]
+    @Published var isFoundationModelsAvailable: Bool = false
+    
     private let contentService = ContentService.shared
+    private let summarizationService = SummarizationService.shared
     private let isoFormatter = ISO8601DateFormatter()
     private let relativeFormatter: RelativeDateTimeFormatter = {
         let formatter = RelativeDateTimeFormatter()
@@ -29,6 +36,10 @@ final class HomeViewModel: ObservableObject {
     private var currentPage = 1
     private let perPage = 20
     private let strategy = "relevant"
+    
+    init() {
+        checkFoundationModelsAvailability()
+    }
     
     func loadContents(reset: Bool = false) async {
         if isLoading || isLoadingNextPage { return }
@@ -76,6 +87,57 @@ final class HomeViewModel: ObservableObject {
         }
         
         return relativeFormatter.localizedString(for: date, relativeTo: Date())
+    }
+    
+    // MARK: - Summary Methods
+    
+    func checkFoundationModelsAvailability() {
+        isFoundationModelsAvailable = summarizationService.isAvailable()
+    }
+    
+    func summarizeContent(_ content: ContentResponse) async {
+        // Check if already summarizing
+        if summarizingIds.contains(content.id) {
+            return
+        }
+        
+        // Mark as summarizing
+        summarizingIds.insert(content.id)
+        summaryErrors.removeValue(forKey: content.id)
+        
+        do {
+            // Summarize all content (title, owner, date, body, source URL)
+            let summaryText = try await summarizationService.summarize(content: content)
+            
+            // Create and store summary
+            let summary = ContentSummary(id: content.id, summary: summaryText)
+            summaries[content.id] = summary
+            
+        } catch {
+            // Store error message
+            summaryErrors[content.id] = error.localizedDescription
+        }
+        
+        // Remove from summarizing set
+        summarizingIds.remove(content.id)
+    }
+    
+    func getSummary(for contentId: String) -> ContentSummary? {
+        return summaries[contentId]
+    }
+    
+    func isSummarizing(_ contentId: String) -> Bool {
+        return summarizingIds.contains(contentId)
+    }
+    
+    func getSummaryError(for contentId: String) -> String? {
+        return summaryErrors[contentId]
+    }
+    
+    func clearSummary(for contentId: String) {
+        summaries.removeValue(forKey: contentId)
+        summaryErrors.removeValue(forKey: contentId)
+        summarizingIds.remove(contentId)
     }
 }
 
